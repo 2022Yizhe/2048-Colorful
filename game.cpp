@@ -158,11 +158,12 @@ void myLayout::onKeyPressed(int key) {
         moved  = this->moveRight();
 
     if(moved){
-        //先保证
+        //先保存局势
         saveMove();
-        //再更新当前步数
-        Step++;
-
+        //再更新当前步数，如果上一步悔棋，则 step 不变
+        if(flag == false)
+            Step++;
+        //更新数字框
         this->addNumber();
         this->showArray();
     }
@@ -206,6 +207,10 @@ bool myLayout::addNumber() {
     int pos = emptyPos[dis(gen)];
     //通过格子的位置，反向取址，单走一个 2
     array[pos / size][pos % size] = 2;
+
+    //解执行 flag
+    flag = false;
+
     return true;
 }
 
@@ -500,6 +505,18 @@ void myLayout::saveMove(){
 }
 
 void myLayout::reMove(){
+    // counts 记录操作执行次数
+    //unsigned int counts = 0;
+
+    // flag 记录操作执行与否, 悔棋时step-1
+    if(flag == true){
+        qDebug() << "不可再悔棋!";
+        return;
+    } else {
+        ui->Step_label->setText(QString::number(ui->Step_label->text().toInt()-1));
+        flag = true;    // 执行时设置为 true (在 addNumber 后解执行)
+    }
+
     //写入文档数据
     QFile file("situation.txt");
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -510,7 +527,7 @@ void myLayout::reMove(){
     QTextStream in(&file);
     //创建二维string数组
     QStringList lines;
-    //循环追加每一行文本至 lines
+    //循环读取每一行文本至 lines
     while(!in.atEnd()){
         //单行文本用 line 临时储存
         QString line = in.readLine();

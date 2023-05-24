@@ -55,6 +55,7 @@ public:
 
     QVector<QVector<int>> array;
 
+    bool flag = false;
 public:
     myLayout();
     /* 完成移动时的数字变化 */
